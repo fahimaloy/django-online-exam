@@ -1,0 +1,212 @@
+{% extends 'student/studentbase.html' %}
+{% block content %}
+{%load static%}
+
+<head>
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+
+</head>
+
+<p id="demo"></p>
+<div oncontextmenu="return false" onmousedown = 'return false' onselectstart = 'return false' class="jumbotron my-4">
+
+  <form class="form" autocomplete="off" onsubmit="return saveAns()"  action="/student/calculate-marks" method="POST">
+    {% csrf_token %}
+    <h2 style="text-align: center;">Course: {{course.course_name}}</h2>
+    {% for q in questions%}
+    <h3 class="text-danger">{{ forloop.counter }}. {{q.question}}</h3><h4 style="text-align: right;">[{{q.marks}} Marks]</h4>
+    
+        <input type="hidden" name="csrfmiddlewaretoken" value="C24rUotmdHawVQJL3KrqiWxvti8UffOFYUc8TRbZtLt36AVLdP3jbkzUVe3beRAa">
+        
+        
+          <div class="form-check mx-4">
+            <input class="form-check-input checkboxID" type="checkbox" name="{{ forloop.counter }}" id="{{q.option1}}" value="Option1">
+            <label class="form-check-label" for="option1">
+              {{q.option1}}
+            </label>
+          </div>
+
+        
+          <div class="form-check mx-4">
+            <input class="form-check-input checkboxID" type="checkbox" name="{{ forloop.counter }}" id="{{q.option2}}" value="Option2">
+            <label class="form-check-label" for="option2">
+              {{q.option2}}
+            </label>
+          </div>
+
+        
+          <div class="form-check mx-4">
+            <input class="form-check-input checkboxID" type="checkbox" name="{{ forloop.counter }}" id="{{q.option3}}" value="Option3">
+            <label class="form-check-label" for="option3">
+              {{q.option3}}
+            </label>
+          </div>
+
+        
+          <div class="form-check mx-4">
+            <input class="form-check-input checkboxID" type="checkbox" name="{{ forloop.counter }}" id="{{q.option4}}" value="Option4">
+            <label class="form-check-label" for="option4">
+              {{q.option4}}
+            </label>
+          </div>
+          
+
+        {% endfor %}
+        <input type="submit" value="Submit" id="PaperSubmit" onclick="submitFormOkay = true;" class = "btn btn-success btn-lg" style="border-color:#745959; color:#745959;"/>
+        <!-- <input class="btn btn-success btn-lg" style="border-radius: 0%;"  type="submit" value="Submit Answers">   -->
+    </form>
+    <input type="hidden" id="secs" value="{{ secs }}">
+    <input type="hidden" id="mins" value="{{ mins }}">
+  </div>
+  <script>
+    var minutesToAdd=1;
+    var currentDate = new Date();
+    var countDownDate = new Date(currentDate.getTime() + minutesToAdd*60000);
+    // Set the date we're counting down to
+    // var countDownDate = new Date("Jan 5, 2024 15:37:25").getTime();
+    
+    // Update the count down every 1 second
+    var x = setInterval(function() {
+    
+      // Get today's date and time
+      var now = new Date().getTime();
+    
+      // Find the distance between now and the count down date
+      var distance = countDownDate - now;
+    
+      // Time calculations for days, hours, minutes and seconds
+      var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+      // Display the result in the element with id="demo"
+      document.getElementById("demo").innerHTML = days + "d " + hours + "h "
+      + minutes + "m " + seconds + "s ";
+    
+      // If the count down is finished, write some text
+      if (distance < 0) {
+        // getDisplayWindow().onbeforeunload = null;
+        window.onbeforeunload = null;
+        document.getElementById("PaperSubmit").click();
+        clearInterval(x);
+        document.getElementById("demo").innerHTML = "Time Out";
+      }
+    }, 1000);
+
+    
+    </script>
+<script> 
+
+ 
+    function saveAns(){  
+      
+        var ele = document.getElementsByTagName('input'); 
+        for(i = 0; i < ele.length; i++) { 
+            if(ele[i].type="checkbox") { 
+                if(ele[i].checked){        
+                  setCookie(ele[i].name,ele[i].value,3)
+                }
+            } 
+        } 
+          
+    }
+    
+    function setCookie(cname, cvalue, exdays) {
+  var d = new Date();
+  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+  var expires = "expires="+ d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+$("input:checkbox").on('click', function() {
+  // in the handler, 'this' refers to the box clicked on
+  var $box = $(this);
+  if ($box.is(":checked")) {
+    $(this).attr("disabled", true);
+    // the name of the box is retrieved using the .attr() method
+    // as it is assumed and expected to be immutable
+    // var group = "input:checkbox[name='" + $box.attr("name") + "']";
+    // the checked state of the group/box on the other hand will change
+    // and the current value is retrieved using .prop() method
+    
+  }
+  
+});
+
+</script> 
+
+<br><br><br><br><br><br>
+{% endblock content %}
+{% block js_content %}
+<script type="text/javascript">
+    count = 0;
+    $(document).ready(function() {
+      
+
+      $('body').bind("cut copy paste",function(e) {
+        e.preventDefault();
+      });
+      var hidden, visibilityState, visibilityChange;
+      
+        if (typeof document.hidden !== "undefined") {
+            hidden = "hidden", visibilityChange = "visibilitychange", visibilityState = "visibilityState";
+        } else if (typeof document.msHidden !== "undefined") {
+            hidden = "msHidden", visibilityChange = "msvisibilitychange", visibilityState = "msVisibilityState";
+        }
+
+        var document_hidden = document[hidden];
+
+        document.addEventListener(visibilityChange, function() {
+            if(document_hidden != document[hidden]) {
+            if(document[hidden]){
+                count+=1;
+                if(count == 2){
+                    mail()
+                }
+            }
+            document_hidden = document[hidden];
+            }
+        });
+        });
+
+        function mail(){
+            fetch(`/student/cheat/`,{
+                method:"GET",
+                credentials: "same-origin",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+            })
+          
+        }
+        
+        
+    window.onbeforeunload = function() { return "Your work will be lost."; };
+    
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+
+
+<script>window.jQuery || document.write('<script src="/docs/4.5/assets/js/vendor/jquery.slim.min.js"><\/script>')</script>
+
+{% endblock js_content %}
